@@ -45,19 +45,22 @@ abstract class Entity {
     }
 
     fun move(direction: Direction, delta: Float, worldWidth: Float, map: GameMap) {
-        val speedMultiplier = if (isInWater) 0.5f else 1f
+        val tileBehavior = map.getBehaviorAt(sprite.x + width / 2f, sprite.y + height / 2f)
+        val tileMultiplier = tileBehavior.horizontalSpeedMultiplier
+        val waterMultiplier = if (isInWater) 0.5f else 1f
+        val speedMultiplier = tileMultiplier * waterMultiplier
 
         val newX = when (direction) {
             Direction.LEFT -> {
                 if (facingRight) {
-                    sprite.flip(true, false) // отражение спрайта по горизонтали
+                    sprite.flip(true, false)
                     facingRight = false
                 }
                 sprite.x - horizontalSpeed * speedMultiplier * delta
             }
             Direction.RIGHT -> {
                 if (!facingRight) {
-                    sprite.flip(true, false) // отражение спрайта по горизонтали
+                    sprite.flip(true, false)
                     facingRight = true
                 }
                 sprite.x + horizontalSpeed * speedMultiplier * delta

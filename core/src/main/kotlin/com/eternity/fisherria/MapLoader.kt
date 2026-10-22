@@ -14,8 +14,7 @@ object MapLoader {
         for (py in 0 until height) {
             for (px in 0 until width) {
                 val color = pixmap.getPixel(px, py)
-                val tileType = colorToTile(color)
-                tiles[height - 1 - py][px] = tileType
+                tiles[height - 1 - py][px] = colorToTile(color)
             }
         }
 

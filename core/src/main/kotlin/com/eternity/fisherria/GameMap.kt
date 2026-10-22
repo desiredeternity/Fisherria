@@ -2,6 +2,7 @@ package com.eternity.fisherria
 
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.Rectangle
 
 class GameMap(val tiles: Array<Array<TileType>>) {
     val width: Float get() = tiles[0].size * 1f
@@ -9,31 +10,47 @@ class GameMap(val tiles: Array<Array<TileType>>) {
     private val textures = mutableMapOf<TileType, Texture>()
     private val tileSize: Float = 1f
 
-    fun isSolidAt(worldX: Float, worldY: Float): Boolean {
+    fun getBehaviorAt(worldX: Float, worldY: Float): TileBehavior {
         val tx = worldX.toInt()
         val ty = worldY.toInt()
-        if (ty !in tiles.indices || tx !in tiles[ty].indices) return true
-        return tiles[ty][tx].solid
+        if (ty !in tiles.indices || tx !in tiles[ty].indices) return GroundBehavior
+        return TileBehaviors.of(tiles[ty][tx])
+    }
+
+    fun isSolidAt(worldX: Float, worldY: Float): Boolean {
+        return getBehaviorAt(worldX, worldY).solid
     }
 
     fun isLiquidAt(worldX: Float, worldY: Float): Boolean {
-        val tx = worldX.toInt()
-        val ty = worldY.toInt()
-        if (ty !in tiles.indices || tx !in tiles[ty].indices) return false
-        return tiles[ty][tx].liquid
+        return getBehaviorAt(worldX, worldY).liquid
+    }
+
+    fun getHorizontalSpeedMultiplierAt(worldX: Float, worldY: Float): Float {
+        return getBehaviorAt(worldX, worldY).horizontalSpeedMultiplier
     }
 
     // ищет самый верхний жидкий тайл в столбце и возвращает верхнюю границу. "Поверхность воды"
     fun getLiquidLevelAt(worldX: Float): Float? {
         val tx = worldX.toInt()
         if (tx !in tiles[0].indices) return null
-
         for (ty in tiles.indices.reversed()) {
-            if (tiles[ty][tx].liquid) {
+            if (TileBehaviors.of(tiles[ty][tx]).liquid) {
                 return (ty + 1).toFloat()
             }
         }
         return null
+    }
+
+    fun getCollisionRects(): List<Rectangle> {
+        val result = mutableListOf<Rectangle>()
+        for (y in tiles.indices) {
+            for (x in tiles[y].indices) {
+                if (TileBehaviors.of(tiles[y][x]).solid) {
+                    result.add(Rectangle(x.toFloat(), y.toFloat(), 1f, 1f))
+                }
+            }
+        }
+        return result
     }
 
     fun loadTexture() {

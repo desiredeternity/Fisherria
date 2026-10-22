@@ -1,7 +1,5 @@
 package com.eternity.fisherria
 
-import com.badlogic.gdx.Gdx
-
 class AmateurRod: Rod() {
     override val id = 2
     override val name = "Удочка любителя"
