@@ -41,18 +41,6 @@ class GameMap(val tiles: Array<Array<TileType>>) {
         return null
     }
 
-    fun getCollisionRects(): List<Rectangle> {
-        val result = mutableListOf<Rectangle>()
-        for (y in tiles.indices) {
-            for (x in tiles[y].indices) {
-                if (TileBehaviors.of(tiles[y][x]).solid) {
-                    result.add(Rectangle(x.toFloat(), y.toFloat(), 1f, 1f))
-                }
-            }
-        }
-        return result
-    }
-
     fun loadTexture() {
         textures[TileType.GRASS] = Texture("grass.png")
         textures[TileType.WATER] = Texture("water2.png")
