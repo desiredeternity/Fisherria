@@ -9,7 +9,7 @@ object EmptyBehavior: TileBehavior {
     override val solid = false
     override val liquid = false
 
-    override fun getJumpForce(entity: Entity): Float? = null
+    override fun getJumpForce(obj: PhysicsObject): Float? = null
 }
 
 object GrassBehavior: TileBehavior {
@@ -26,28 +26,28 @@ object WaterBehavior: TileBehavior {
     override val solid = false
     override val liquid = true
 
-    override fun getHorizontalSpeedMultiplier(entity: Entity) = 0.5f
-    override fun getGravityMultiplier(entity: Entity) = WATER_GRAVITY_MULTIPLIER
-    override fun getMaxVerticalSpeed(entity: Entity) = WATER_MAX_VERTICAL_SPEED
+    override fun getHorizontalSpeedMultiplier(obj: PhysicsObject) = 0.5f
+    override fun getGravityMultiplier(obj: PhysicsObject) = WATER_GRAVITY_MULTIPLIER
+    override fun getMaxVerticalSpeed(obj: PhysicsObject) = WATER_MAX_VERTICAL_SPEED
 
-    override fun getJumpForce(entity: Entity): Float {
-        return entity.jumpPower * 0.8f
+    override fun getJumpForce(obj: PhysicsObject): Float? {
+        return if (obj is Entity) obj.jumpPower * 0.8f else null
     }
 
-    override fun canBeOnGround(entity: Entity) = false
+    override fun canBeOnGround(obj: PhysicsObject) = false
 
-    override fun onEntityStay(entity: Entity, delta: Float, map: GameMap, gravity: Float) {
+    override fun onEntityStay(obj: PhysicsObject, delta: Float, map: GameMap, gravity: Float) {
         val waterGravity = gravity * WATER_GRAVITY_MULTIPLIER
-        val surfaceY = map.getLiquidLevelAt(entity.getX() + entity.width / 2f) ?: return
+        val surfaceY = map.getLiquidLevelAt(obj.getX() + obj.width / 2f) ?: return
 
-        val submergedDepth = surfaceY - entity.getY()
+        val submergedDepth = surfaceY - obj.getY()
         if (submergedDepth > 0f) {
             // постоянное выталкивание
-            entity.addVerticalForce(-waterGravity * WATER_BUOYANCY_COEFFICIENT * delta)
+            obj.addVerticalForce(-waterGravity * WATER_BUOYANCY_COEFFICIENT * delta)
 
             // сопротивление воды
             val drag = 1f - WATER_DRAG_COEFFICIENT * delta
-            entity.multiplyVerticalSpeed(drag.coerceAtLeast(0f))
+            obj.multiplyVerticalSpeed(drag.coerceAtLeast(0f))
         }
     }
 }
@@ -56,7 +56,7 @@ object IceBehavior: TileBehavior {
     override val solid = true
     override val liquid = false
 
-    override fun getHorizontalSpeedMultiplier(entity: Entity) = 2.5f
+    override fun getHorizontalSpeedMultiplier(obj: PhysicsObject) = 2.5f
 }
 
 object TileBehaviors {
