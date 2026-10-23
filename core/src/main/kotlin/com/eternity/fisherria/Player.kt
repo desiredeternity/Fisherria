@@ -7,6 +7,7 @@ class Player(x: Float, y: Float): Human() {
     override val width = 1f
     private var exp: Int = 0
     val inventory = Inventory(INVENTORY_CAPACITY)
+    var activeBobber: Bobber? = null
 
     init {
         initSprite(x, y)
@@ -35,6 +36,31 @@ class Player(x: Float, y: Float): Human() {
         setY(data.y)
         exp = data.exp
         inventory.applyData(data.items)
+    }
+
+    fun clearBobberIfLanded() {
+        val bobber = activeBobber ?: return
+        if (bobber.isLanded) {
+            bobber.dispose()
+            activeBobber = null
+        }
+    }
+
+    fun castBobber(bobber: Bobber) {
+        val current = activeBobber
+
+        if (current != null) {
+            // Если летит — игнорируем клик
+            if (current.isFlying) return
+
+            // Если плавает или лежит — убираем (подмотка / отмена)
+            current.dispose()
+            activeBobber = null
+            return
+        }
+
+        // Свободно — забрасываем новый
+        activeBobber = bobber
     }
 
     companion object {

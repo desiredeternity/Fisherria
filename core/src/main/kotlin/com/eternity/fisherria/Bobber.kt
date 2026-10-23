@@ -4,80 +4,83 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
+import kotlin.math.sqrt
 
 class Bobber(
-    val texturePath: String,
+    override val texturePath: String,
     startX: Float,
     startY: Float,
     targetX: Float,
     targetY: Float
-) {
-    private lateinit var sprite: Sprite
-    private val width: Float = 0.5f
-    private val height: Float = 0.5f
+): PhysicsObject() {
+    override val width = 0.5f * 16/30
+    override val height = 0.5f * 1
+    override val gravity = -22f
 
-    private var state: BobberState = BobberState.FLYING
-    private var velocityX: Float = 0f
-    private var velocityY: Float = 0f
-    private var time: Float = 0f
-    private val flightDuration: Float = 1f
-    private val arcHeight: Float = 2f
+    private var state = State.FLYING
+    private var velocityX = 0f
 
-    val isFloating: Boolean get() = state == BobberState.FLYING
-    val isFinished: Boolean get() = state == BobberState.LANDED
-
-    private val startPos = Vector2(startX, startY)
-    private val targetPos = Vector2(targetX, targetY)
-
-    private fun initSprite(initX: Float, initY: Float) {
-        sprite = Sprite(Texture(texturePath))
-        sprite.setSize(width, height)
-        sprite.setPosition(initX, initY)
-    }
+    val isFlying: Boolean get() = state == State.FLYING
+    val isInWater: Boolean get() = state == State.IN_WATER
+    val isLanded: Boolean get() = state == State.LANDED
 
     init {
         initSprite(startX, startY)
+
+        val dx = targetX - startX
+        val dy = targetY - startY
+        val distance = sqrt(dx * dx + dy * dy).coerceAtLeast(0.1f)
+
+        val speed = (8f + distance * 0.9f).coerceIn(8f, 22f)
+
+        velocityX = dx / distance * speed
+        verticalSpeed = (dy / distance * speed * 0.6f + 7f).coerceAtLeast(6f)
     }
 
-    fun update(delta: Float, map: GameMap) {
+    override fun update(delta: Float, map: GameMap) {
         when (state) {
-            BobberState.FLYING -> updateFlying(delta, map)
-            BobberState.FLOATING -> updateFloating(delta)
-            BobberState.LANDED -> {}
+            State.FLYING -> updateFlying(delta, map)
+            State.IN_WATER -> super.update(delta, map)
+            State.LANDED -> {}
         }
     }
 
     private fun updateFlying(delta: Float, map: GameMap) {
-        time += delta
-        val t = (time / flightDuration).coerceIn(0f, 1f)
+        // Горизонталь
+        setX(getX() + velocityX * delta)
 
-        val x = startPos.x + (targetPos.x - startPos.x) * t
-        val baseY = startPos.y + (targetPos.y - startPos.y) * t
-        val arc = 4f * arcHeight * t * (1f - t)
-        sprite.setPosition(x, baseY + arc)
+        // Вертикаль + гравитация
+        verticalSpeed += gravity * delta
+        setY(getY() + verticalSpeed * delta)
 
-        if (t >= 1f) {
-            // Долетели — проверяем, вода ли в целевой точке
-            if (map.isLiquidAt(targetPos.x, targetPos.y)) {
-                state = BobberState.FLOATING
-                sprite.setPosition(targetPos.x, targetPos.y)
-            } else {
-                // Не вода — падаем на землю и исчезаем
-                state = BobberState.LANDED
-                sprite.setPosition(targetPos.x, targetPos.y)
-            }
+        val centerX = getX() + width / 2f
+        val centerY = getY() + height / 2f
+
+        // Попали в воду?
+        if (map.isLiquidAt(centerX, centerY)) {
+            state = State.IN_WATER
+            verticalSpeed *= 0.35f
+            velocityX *= 0.15f
+            return
+        }
+
+        // Ударились о землю?
+        if (collidesAt(getX(), getY(), map)) {
+            state = State.LANDED
+            verticalSpeed = 0f
+            velocityX = 0f
+            return
+        }
+
+        // Улетел далеко вниз
+        if (getY() < -5f) {
+            state = State.LANDED
         }
     }
 
-    private fun updateFloating(delta: Float) {
-        time += delta
-    }
-
-    fun draw(batch: SpriteBatch) {
-        sprite.draw(batch)
-    }
-
-    fun dispose() {
-        sprite.texture.dispose()
+    private enum class State {
+        FLYING,
+        IN_WATER,
+        LANDED
     }
 }

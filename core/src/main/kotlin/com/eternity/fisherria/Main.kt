@@ -56,6 +56,7 @@ class Main : ApplicationAdapter() {
         val delta = Gdx.graphics.deltaTime
         input()
         player.update(delta, map)
+        player.activeBobber?.update(delta, map)
         logic()
         draw()
     }
@@ -96,11 +97,12 @@ class Main : ApplicationAdapter() {
             viewport.unproject(touchPos) // конвертировать координаты окна в координаты мира
 
             val context = ItemUseContext(
+                player,
                 touchPos.x,
                 touchPos.y,
                 map
             )
-            // player.inventory.getCurrentItem()?.use(context) // если метод вернёт null, ничего не произойдёт (оператор ?.)
+            player.inventory.getCurrentItem()?.use(context) // если метод вернёт null, ничего не произойдёт (оператор ?.)
         }
     }
 
@@ -118,6 +120,7 @@ class Main : ApplicationAdapter() {
         spriteBatch.begin()
         spriteBatch.draw(backgroundTexture, 0f, 0f, map.width, map.height)
         player.draw(spriteBatch)
+        player.activeBobber?.draw(spriteBatch)
         map.draw(spriteBatch)
         spriteBatch.end()
 
