@@ -13,12 +13,13 @@ interface TileBehavior {
     // максимальная вертикальная скорость (null - без ограничения)
     fun getMaxVerticalSpeed(entity: Entity): Float? = null
 
-    // вызывается пока сущность находится на тайле
+    fun getJumpForce(entity: Entity): Float? {
+        return if (entity.isOnGround) entity.jumpPower else null
+    }
+
+    fun canBeOnGround(entity: Entity): Boolean = true
+
     fun onEntityStay(entity: Entity, delta: Float, map: GameMap, gravity: Float) {}
-
-    // вызывается при входе на тайл
     fun onEntityEnter(entity: Entity) {}
-
-    // вызывается при выходе с тайла
     fun onEntityExit(entity: Entity) {}
 }

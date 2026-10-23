@@ -8,6 +8,8 @@ import com.eternity.fisherria.Entity.Companion.WATER_MAX_VERTICAL_SPEED
 object EmptyBehavior: TileBehavior {
     override val solid = false
     override val liquid = false
+
+    override fun getJumpForce(entity: Entity): Float? = null
 }
 
 object GrassBehavior: TileBehavior {
@@ -27,6 +29,12 @@ object WaterBehavior: TileBehavior {
     override fun getHorizontalSpeedMultiplier(entity: Entity) = 0.5f
     override fun getGravityMultiplier(entity: Entity) = WATER_GRAVITY_MULTIPLIER
     override fun getMaxVerticalSpeed(entity: Entity) = WATER_MAX_VERTICAL_SPEED
+
+    override fun getJumpForce(entity: Entity): Float {
+        return entity.jumpPower * 0.8f
+    }
+
+    override fun canBeOnGround(entity: Entity) = false
 
     override fun onEntityStay(entity: Entity, delta: Float, map: GameMap, gravity: Float) {
         val waterGravity = gravity * WATER_GRAVITY_MULTIPLIER

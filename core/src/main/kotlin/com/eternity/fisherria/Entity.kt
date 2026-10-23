@@ -9,24 +9,20 @@ import kotlin.math.abs
 abstract class Entity {
     abstract var name: String
         protected set
+
     protected abstract val texturePath: String
-    protected lateinit var sprite: Sprite
-    private var facingRight: Boolean = false
     open val width: Float = 1f
     open val height: Float = 1f
-    protected open val horizontalSpeed: Float = 8f
-    protected open val jumpPower: Float = 12f
-    protected open val gravity: Float = -30f
+    protected lateinit var sprite: Sprite
+    private var facingRight: Boolean = false
 
+    protected open val horizontalSpeed: Float = 8f
+    open val jumpPower: Float = 12f
+    protected open val gravity: Float = -30f
     var verticalSpeed: Float = 0f
         private set
-
-    protected var isOnGround: Boolean = true
+    var isOnGround: Boolean = true
         private set
-
-    protected var isInWater: Boolean = false
-        private set
-
     private var justJumped = false
     private var currentBehavior: TileBehavior = EmptyBehavior
 
@@ -87,15 +83,17 @@ abstract class Entity {
         sprite.x = MathUtils.clamp(sprite.x, 0f, worldWidth - width)
     }
 
-    fun jump() {
-        if (isInWater) {
-            verticalSpeed = jumpPower * 0.8f
-            justJumped = true
-            return
-        }
+    fun jump(map: GameMap) {
+        // Смотрим тайл прямо под ногами
+        val feetBehavior = map.getBehaviorAt(
+            sprite.x + width / 2f,
+            sprite.y - 0.05f
+        )
 
-        if (!isOnGround) return
-        verticalSpeed = jumpPower
+        val force = feetBehavior.getJumpForce(this) ?: return
+
+        verticalSpeed = force
+        justJumped = feetBehavior.liquid // флаг нужен только при прыжке в жидкости
         isOnGround = false
     }
 
@@ -111,8 +109,6 @@ abstract class Entity {
             newBehavior.onEntityEnter(this)
             currentBehavior = newBehavior
         }
-
-        isInWater = newBehavior.liquid
 
         // базовая гравитация + модификатор от тайла
         val gravityMult = newBehavior.getGravityMultiplier(this)
@@ -139,16 +135,21 @@ abstract class Entity {
         val steps = abs(totalStep).toInt().coerceAtLeast(1)
         val stepSize = totalStep / steps
 
+        var hitGround = false
+
         for (i in 0 until steps) {
             val newY = sprite.y + stepSize
             if (collidesAt(sprite.x, newY, map)) {
-                if (verticalSpeed < 0f && !isInWater) isOnGround = true
+                if (verticalSpeed < 0f) {
+                    hitGround = true
+                }
                 verticalSpeed = 0f
-                return
+                break
             }
             sprite.y = newY
         }
-        if (!isInWater) isOnGround = false
+
+        isOnGround = hitGround && currentBehavior.canBeOnGround(this)
     }
 
     private fun collidesAt(x: Float, y: Float, map: GameMap): Boolean {
