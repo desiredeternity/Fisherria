@@ -84,7 +84,7 @@ class Main : ApplicationAdapter() {
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) player.move(Direction.LEFT, delta, map.width, map)
         if (Gdx.input.isKeyPressed(Input.Keys.D)) player.move(Direction.RIGHT, delta, map.width, map)
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) player.jump()
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) player.jump(map)
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) player.inventory.selectSlot(0)
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) player.inventory.selectSlot(1)
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) player.inventory.selectSlot(2)

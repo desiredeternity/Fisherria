@@ -10,24 +10,22 @@ class GameMap(val tiles: Array<Array<TileType>>) {
     private val textures = mutableMapOf<TileType, Texture>()
     private val tileSize: Float = 1f
 
-    fun getBehaviorAt(worldX: Float, worldY: Float): TileBehavior {
-        val tx = worldX.toInt()
-        val ty = worldY.toInt()
-        if (ty !in tiles.indices || tx !in tiles[ty].indices) return GroundBehavior
-        return TileBehaviors.of(tiles[ty][tx])
+    fun getTileTypeAt(tx: Int, ty: Int): TileType {
+        if (ty !in tiles.indices || tx !in tiles[ty].indices) return TileType.GROUND
+        return tiles[ty][tx]
     }
 
-    fun isSolidAt(worldX: Float, worldY: Float): Boolean {
-        return getBehaviorAt(worldX, worldY).solid
-    }
+    fun getTileTypeAt(worldX: Float, worldY: Float): TileType =
+        getTileTypeAt(worldX.toInt(), worldY.toInt())
 
-    fun isLiquidAt(worldX: Float, worldY: Float): Boolean {
-        return getBehaviorAt(worldX, worldY).liquid
-    }
+    fun getBehaviorAt(worldX: Float, worldY: Float): TileBehavior =
+        TileBehaviors.of(getTileTypeAt(worldX, worldY))
 
-    fun getHorizontalSpeedMultiplierAt(worldX: Float, worldY: Float): Float {
-        return getBehaviorAt(worldX, worldY).horizontalSpeedMultiplier
-    }
+    fun isSolidAt(worldX: Float, worldY: Float): Boolean =
+        getBehaviorAt(worldX, worldY).solid
+
+    fun isLiquidAt(worldX: Float, worldY: Float): Boolean =
+        getBehaviorAt(worldX, worldY).liquid
 
     // ищет самый верхний жидкий тайл в столбце и возвращает верхнюю границу. "Поверхность воды"
     fun getLiquidLevelAt(worldX: Float): Float? {
