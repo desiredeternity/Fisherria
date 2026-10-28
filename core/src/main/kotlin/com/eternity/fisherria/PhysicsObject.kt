@@ -63,14 +63,14 @@ abstract class PhysicsObject {
             currentBehavior = newBehavior
         }
 
-        // Гравитация
+        // гравитация
         val gravityMult = newBehavior.getGravityMultiplier(this)
         verticalSpeed += gravity * gravityMult * delta
 
-        // Силы от тайла (buoyancy, drag и т.д.)
+        // силы от тайла (buoyancy, drag и т.д.)
         newBehavior.onEntityStay(this, delta, map, gravity)
 
-        // Ограничение скорости
+        // ограничение скорости
         if (!justJumped) {
             val max = newBehavior.getMaxVerticalSpeed(this)
             if (max != null) {
@@ -122,5 +122,12 @@ abstract class PhysicsObject {
 
     open fun dispose() {
         sprite.texture.dispose()
+    }
+
+    companion object {
+        const val WATER_BUOYANCY_COEFFICIENT = 1.4f // больше коэффициент - быстрее всплытие
+        const val WATER_DRAG_COEFFICIENT = 1f       // больше коэффициент - быстрее гасится скорость
+        const val WATER_MAX_VERTICAL_SPEED = 4f
+        const val WATER_GRAVITY_MULTIPLIER = 0.2f
     }
 }

@@ -75,6 +75,7 @@ class Inventory(capacity: Int) {
 
     fun clear() {
         for (i in slots.indices) {
+            slots[i]?.dispose()
             slots[i] = null
         }
     }
@@ -142,6 +143,7 @@ class Inventory(capacity: Int) {
     }
 
     fun dispose() {
+        clear()
         iconCache.values.forEach { it.dispose() }
         iconCache.clear()
         slotTexture.dispose()

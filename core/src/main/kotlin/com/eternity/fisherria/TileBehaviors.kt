@@ -1,9 +1,9 @@
 package com.eternity.fisherria
 
-import com.eternity.fisherria.Entity.Companion.WATER_BUOYANCY_COEFFICIENT
-import com.eternity.fisherria.Entity.Companion.WATER_DRAG_COEFFICIENT
-import com.eternity.fisherria.Entity.Companion.WATER_GRAVITY_MULTIPLIER
-import com.eternity.fisherria.Entity.Companion.WATER_MAX_VERTICAL_SPEED
+import com.eternity.fisherria.PhysicsObject.Companion.WATER_BUOYANCY_COEFFICIENT
+import com.eternity.fisherria.PhysicsObject.Companion.WATER_DRAG_COEFFICIENT
+import com.eternity.fisherria.PhysicsObject.Companion.WATER_GRAVITY_MULTIPLIER
+import com.eternity.fisherria.PhysicsObject.Companion.WATER_MAX_VERTICAL_SPEED
 
 object EmptyBehavior: TileBehavior {
     override val solid = false

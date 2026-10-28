@@ -64,9 +64,5 @@ abstract class Entity: PhysicsObject() {
 
     companion object {
         protected const val MAX_NAME_LENGTH = 20
-        const val WATER_BUOYANCY_COEFFICIENT = 1.4f // больше коэффициент - быстрее всплытие
-        const val WATER_DRAG_COEFFICIENT = 1f       // больше коэффициент - быстрее гасится скорость
-        const val WATER_MAX_VERTICAL_SPEED = 4f
-        const val WATER_GRAVITY_MULTIPLIER = 0.2f
     }
 }

@@ -26,7 +26,6 @@ class Main : ApplicationAdapter() {
 
     private lateinit var map: GameMap
     private lateinit var player: Player
-    private lateinit var slotTexture: Texture
     private lateinit var backgroundTexture: Texture
 
     private val json = Json().apply {
@@ -48,7 +47,6 @@ class Main : ApplicationAdapter() {
         map.loadTexture()
         player = createPlayer()
 
-        slotTexture = Texture("slot_selected.png")
         backgroundTexture = Texture("background.png")
     }
 
@@ -56,7 +54,10 @@ class Main : ApplicationAdapter() {
         val delta = Gdx.graphics.deltaTime
         input()
         player.update(delta, map)
-        player.activeBobber?.update(delta, map)
+
+        val currentRod = player.inventory.getCurrentItem() as? Rod
+        currentRod?.updateBobber(delta, map)
+
         logic()
         draw()
     }
@@ -120,7 +121,10 @@ class Main : ApplicationAdapter() {
         spriteBatch.begin()
         spriteBatch.draw(backgroundTexture, 0f, 0f, map.width, map.height)
         player.draw(spriteBatch)
-        player.activeBobber?.draw(spriteBatch)
+
+        val currentRod = player.inventory.getCurrentItem() as? Rod
+        currentRod?.drawBobber(spriteBatch)
+
         map.draw(spriteBatch)
         spriteBatch.end()
 

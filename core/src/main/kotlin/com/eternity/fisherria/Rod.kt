@@ -1,22 +1,51 @@
 package com.eternity.fisherria
 
-import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
 abstract class Rod: Item() {
     abstract val addMastery: Float
     abstract val bobberTexturePath: String
 
-    override fun use(context: ItemUseContext) {
-        val player = context.player
+    var activeBobber: Bobber? = null
+        private set
 
-        val bobber = Bobber(
+    override fun use(context: ItemUseContext) {
+        val current = activeBobber
+
+        if (current != null) {
+            // Летит — игнорируем
+            if (current.isFlying) return
+
+            // Плавает или лежит — подматываем / убираем
+            current.dispose()
+            activeBobber = null
+            return
+        }
+
+        val player = context.player
+        activeBobber = Bobber(
             texturePath = bobberTexturePath,
             startX = player.getX() + player.width / 2f,
             startY = player.getY() + player.height * 0.7f,
             targetX = context.targetX,
             targetY = context.targetY
         )
+    }
 
-        player.castBobber(bobber)
+    fun updateBobber(delta: Float, map: GameMap) {
+        activeBobber?.update(delta, map)
+    }
+
+    fun drawBobber(batch: SpriteBatch) {
+        activeBobber?.draw(batch)
+    }
+
+    fun clearBobber() {
+        activeBobber?.dispose()
+        activeBobber = null
+    }
+
+    override fun dispose() {
+        clearBobber()
     }
 }

@@ -1,9 +1,5 @@
 package com.eternity.fisherria
 
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.Vector2
 import kotlin.math.sqrt
 
 class Bobber(
@@ -46,17 +42,15 @@ class Bobber(
     }
 
     private fun updateFlying(delta: Float, map: GameMap) {
-        // Горизонталь
         setX(getX() + velocityX * delta)
 
-        // Вертикаль + гравитация
         verticalSpeed += gravity * delta
         setY(getY() + verticalSpeed * delta)
 
         val centerX = getX() + width / 2f
         val centerY = getY() + height / 2f
 
-        // Попали в воду?
+        // попали в воду
         if (map.isLiquidAt(centerX, centerY)) {
             state = State.IN_WATER
             verticalSpeed *= 0.35f
@@ -64,7 +58,7 @@ class Bobber(
             return
         }
 
-        // Ударились о землю?
+        // ударились о землю
         if (collidesAt(getX(), getY(), map)) {
             state = State.LANDED
             verticalSpeed = 0f
@@ -72,7 +66,6 @@ class Bobber(
             return
         }
 
-        // Улетел далеко вниз
         if (getY() < -5f) {
             state = State.LANDED
         }

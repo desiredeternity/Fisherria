@@ -41,4 +41,8 @@ abstract class Item {
     fun isEmpty(): Boolean {
         return count <= 0
     }
+
+    open fun dispose() {
+        // пусто для обычных предметов
+    }
 }
